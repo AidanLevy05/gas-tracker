@@ -1,0 +1,21 @@
+# --- Your private data (never publish these) ---
+gas_tracker.db
+gas_tracker.db-journal
+gas_tracker.db-wal
+gas_tracker.db-shm
+receipts/
+Receipts/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
