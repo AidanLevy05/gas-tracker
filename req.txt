@@ -1,28 +1,14 @@
 # Gas Expense Tracker — runtime dependencies
 #
-# This project intentionally has NO third-party dependencies.
-# Everything it uses ships with the Python standard library
-# (sqlite3, shutil, pathlib, datetime, dataclasses, contextlib, typing).
-#
 # Requires: Python 3.10+
 #
-# Install nothing — just run:
-#   python3 main.py
+# Tkinter is included with most Python installations (no pip install needed).
+# If tkinter is missing, install the system package:
+#   Ubuntu/Debian:  sudo apt install python3-tk
+#   Fedora:         sudo dnf install python3-tkinter
+#   macOS:          brew install python-tk
 #
-# ---------------------------------------------------------------------------
-# Packages the planned future enhancements would add. Uncomment as you build
-# each feature, then run:  pip install -r requirements.txt
-# ---------------------------------------------------------------------------
-#
-# OCR receipt scanning (suggest total/date from a photo):
-#   pytesseract>=0.3.10      # also requires the Tesseract binary installed on the OS
-#   Pillow>=10.0.0           # image loading/preprocessing
-#
-# Dashboard / charts:
-#   matplotlib>=3.8.0
-#
-# Desktop GUI (pick one):
-#   customtkinter>=5.2.0     # (Tkinter itself is stdlib — no install needed)
-#   PyQt6>=6.6.0
-#
-# Note: CSV export needs nothing new — the  module is in the stdlib.
+# Install Python dependencies:
+#   pip install -r req.txt
+
+Pillow>=10.0.0
