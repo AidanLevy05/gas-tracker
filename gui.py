@@ -74,8 +74,8 @@ class GasTrackerApp:
         paned.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         left = ttk.Frame(paned)
-        right = ttk.Frame(paned, width=300)
-        paned.add(left, weight=3)
+        right = ttk.Frame(paned, width=350)
+        paned.add(left, weight=2)
         paned.add(right, weight=1)
 
         # --- Expense table ---
@@ -285,23 +285,22 @@ class ExpenseDialog:
 
         self.win = tk.Toplevel(parent)
         self.win.title(title)
-        self.win.geometry("400x350")
-        self.win.resizable(False, False)
         self.win.transient(parent)
         self.win.grab_set()
 
-        frame = ttk.Frame(self.win, padding=15)
+        frame = ttk.Frame(self.win, padding=20)
         frame.pack(fill=tk.BOTH, expand=True)
+        frame.columnconfigure(1, weight=1)
 
         row = 0
 
         def add_field(label_text, default=""):
             nonlocal row
             ttk.Label(frame, text=label_text).grid(
-                row=row, column=0, sticky=tk.W, pady=3)
+                row=row, column=0, sticky=tk.W, pady=4)
             var = tk.StringVar(value=default)
-            entry = ttk.Entry(frame, textvariable=var, width=25)
-            entry.grid(row=row, column=1, sticky=tk.W, pady=3, padx=(5, 0))
+            entry = ttk.Entry(frame, textvariable=var)
+            entry.grid(row=row, column=1, sticky=tk.EW, pady=4, padx=(10, 0))
             row += 1
             return var
 
@@ -318,14 +317,14 @@ class ExpenseDialog:
             value=expense.uploaded_to_concur if editing else False)
         ttk.Checkbutton(frame, text="Uploaded to Concur",
                         variable=self.concur_var).grid(
-            row=row, column=0, columnspan=2, sticky=tk.W, pady=3)
+            row=row, column=0, columnspan=2, sticky=tk.W, pady=4)
         row += 1
 
         self.reimb_var = tk.BooleanVar(
             value=expense.reimbursed if editing else False)
         ttk.Checkbutton(frame, text="Reimbursed",
                         variable=self.reimb_var).grid(
-            row=row, column=0, columnspan=2, sticky=tk.W, pady=3)
+            row=row, column=0, columnspan=2, sticky=tk.W, pady=4)
         row += 1
 
         self.notes_var = add_field("Notes:",
@@ -333,30 +332,31 @@ class ExpenseDialog:
 
         # Receipt picker
         ttk.Label(frame, text="Receipt image:").grid(
-            row=row, column=0, sticky=tk.W, pady=3)
+            row=row, column=0, sticky=tk.W, pady=4)
         receipt_btn_frame = ttk.Frame(frame)
-        receipt_btn_frame.grid(row=row, column=1, sticky=tk.W, pady=3, padx=(5, 0))
+        receipt_btn_frame.grid(row=row, column=1, sticky=tk.W, pady=4, padx=(10, 0))
         ttk.Button(receipt_btn_frame, text="Choose file…",
                    command=self._pick_receipt).pack(side=tk.LEFT)
-        row += 1
-
         current = ""
         if editing and expense.receipt_path:
             current = Path(expense.receipt_path).name
         self.receipt_label = ttk.Label(
-            frame, text=current or "(none)",
+            receipt_btn_frame, text=current or "(none)",
             foreground="gray" if not current else "black")
-        self.receipt_label.grid(row=row, column=0, columnspan=2,
-                                sticky=tk.W, pady=(0, 5))
+        self.receipt_label.pack(side=tk.LEFT, padx=(8, 0))
         row += 1
 
         # Save / Cancel
         btn_frame = ttk.Frame(frame)
-        btn_frame.grid(row=row, column=0, columnspan=2, pady=(10, 0))
+        btn_frame.grid(row=row, column=0, columnspan=2, pady=(15, 5))
         ttk.Button(btn_frame, text="Save", command=self._save).pack(
-            side=tk.LEFT, padx=5)
+            side=tk.LEFT, padx=8)
         ttk.Button(btn_frame, text="Cancel",
-                   command=self.win.destroy).pack(side=tk.LEFT, padx=5)
+                   command=self.win.destroy).pack(side=tk.LEFT, padx=8)
+
+        # Let the window size itself, then prevent shrinking below that
+        self.win.update_idletasks()
+        self.win.minsize(self.win.winfo_width(), self.win.winfo_height())
 
     def _pick_receipt(self):
         path = filedialog.askopenfilename(
