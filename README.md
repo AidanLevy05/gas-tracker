@@ -1,61 +1,76 @@
 # Gas Expense Tracker
 
-A local Python + SQLite tool for tracking gas purchases made during work travel
+A desktop Python + SQLite app for tracking gas purchases made during work travel
 and their reimbursement lifecycle (uploaded to Concur → reimbursed).
 
 ## Run it
 
 ```bash
 cd gas-tracker
-python3 main.py
+pip install -r req.txt
+python main.py
 ```
 
-No dependencies beyond the Python standard library (Python 3.10+). The database
-(`gas_tracker.db`) and `receipts/` folder are created automatically next to the
-scripts on first run.
+**Requirements:**
+
+- Python 3.10+
+- Tkinter (included with most Python installations)
+- Pillow (installed via `req.txt`)
+
+If Tkinter is missing, install it via your system package manager:
+
+```bash
+# Ubuntu/Debian
+sudo apt install python3-tk
+# Fedora
+sudo dnf install python3-tkinter
+# macOS
+brew install python-tk
+```
+
+## What it does
+
+The app opens a desktop window with a table of all gas expenses. You can:
+
+- **Add** a new expense with date, total price, gallons, and an optional receipt image
+- **Edit** an existing expense
+- **Delete** an expense
+- **Toggle Concur upload status** and **reimbursement status** with one click
+- **View a summary** of total spending, gallons, average price/gallon, and reimbursement stats
+- **Preview receipt images** by selecting an expense in the table
+
+## How receipt images work
+
+- When adding or editing an expense, click **"Choose file…"** to open a file picker
+- You do not type image paths manually
+- Supported formats: `.jpg`, `.jpeg`, `.png`, `.webp`
+- Selected images are **copied** into the `receipts/` folder with a safe name like `receipt_0001.jpg`
+- The original file is not modified or moved
+- The relative path is stored in the SQLite database
+- Receipt previews are shown in the right panel when an expense is selected
 
 ## Structure
 
 ```
 gas-tracker/
-├── main.py       # CLI / presentation layer (all input + the receipt file copy)
-├── database.py   # data access layer (schema + every SQL statement)
-├── models.py     # Expense domain model (no SQL, no I/O)
-├── receipts/     # receipt images, copied in and named receipt_<id>.jpg
-└── gas_tracker.db
+├── main.py          # launches the GUI
+├── gui.py           # Tkinter GUI (presentation layer)
+├── database.py      # data access layer (schema + SQL)
+├── models.py        # Expense domain model (no SQL, no UI)
+├── receipts/        # receipt images, copied and renamed on import
+├── gas_tracker.db   # SQLite database (created automatically)
+└── req.txt          # Python dependencies
 ```
 
-The three layers don't reach across each other: the CLI calls the `Database`
-object, the `Database` returns `Expense` objects, and `models.py` knows nothing
-about SQLite or the terminal. Swapping the CLI for a Tkinter GUI later means
-touching only `main.py`.
+## Database
 
-## Design decisions worth knowing
+- Uses **SQLite** (`gas_tracker.db`), created automatically on first run
+- `price_per_gallon` is a generated column (`total_price / num_gallons`) — never stored manually
+- Booleans are stored as `INTEGER` 0/1 with `CHECK` constraints
+- All queries use parameterized placeholders to prevent SQL injection
 
-- **`price_per_gallon` is a generated column**, not a stored value you keep in
-  sync by hand: `GENERATED ALWAYS AS (total_price / num_gallons) VIRTUAL`. The
-  database owns the formula, so the derived value can never drift from its
-  inputs — even after an edit. (Verified: editing `total_price` recomputes it.)
-- **Booleans are `INTEGER` 0/1 with `CHECK (... IN (0,1))`**, since SQLite has no
-  native boolean type. The model converts to/from Python `bool`.
-- **A `CHECK (num_gallons > 0)`** both protects the division and rejects bad data
-  at the database, not just in the UI.
-- **Every query is parameterized** (`?` placeholders) — user input is never
-  concatenated into SQL.
-- **Receipts live on disk, paths in the DB.** Images are copied into `receipts/`
-  named by record id (`receipt_0001.jpg`), and a _relative_ path is stored so the
-  project folder stays portable.
-- **Aggregates are computed in SQL** (one `SELECT` with `SUM`/`CASE`), and the
-  average price/gallon is the weighted figure (total $ ÷ total gallons), which is
-  what you actually paid — not a plain mean of the per-fill rates.
+## Design decisions
 
-## Known tradeoffs
-
-- Money is stored as `REAL`. Fine for a personal tracker; if exact accounting
-  ever matters, integer cents avoids floating-point rounding.
-- Deleting a record leaves its receipt file on disk on purpose (safer default).
-
-## Possible next steps
-
-CSV export, search/filter by date or status, monthly reports, OCR to pre-fill
-values from a receipt photo, and a desktop GUI.
+- **Three-layer architecture**: `models.py` (domain), `database.py` (data access), `gui.py` (presentation) — each layer is independent
+- **Receipts live on disk, paths in the DB.** Images are copied into `receipts/` named by record ID, and a relative path is stored so the project folder stays portable
+- **Aggregates computed in SQL** — the average price/gallon is the weighted figure (total $ ÷ total gallons)
