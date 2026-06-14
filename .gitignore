@@ -1,4 +1,4 @@
-# --- Your private data (never publish these) ---
+# --- Your private data ---
 gas_tracker.db
 gas_tracker.db-journal
 gas_tracker.db-wal
