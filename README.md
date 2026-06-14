@@ -9,6 +9,15 @@ and their reimbursement lifecycle (uploaded to Concur → reimbursed). Not assoc
 cd gas-tracker
 pip install -r req.txt
 python main.py
+# May use python3 main.py as well
+```
+
+Or:
+
+```bash
+cd gas-tracker
+pip install -r req.txt
+./run.sh
 ```
 
 **Requirements:**
