@@ -1,7 +1,7 @@
 # Gas Expense Tracker
 
 A desktop Python + SQLite app for tracking gas purchases made during work travel
-and their reimbursement lifecycle (uploaded to Concur → reimbursed).
+and their reimbursement lifecycle (uploaded to Concur → reimbursed). Not associated with ASRC Federal or TRMCi.
 
 ## Run it
 
